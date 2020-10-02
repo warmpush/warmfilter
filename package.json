@@ -1,0 +1,31 @@
+{
+  "name": "stock-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config -x ts-node --files ./src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node build/index.js",
+    "lint:code": "eslint src",
+    "lint:types": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "@types/ws": "^7.2.7",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.10.0",
+    "eslint-config-galex": "^2.4.11",
+    "prettier": "^2.1.2",
+    "ts-node": "^9.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^12.3.1",
+    "nodemon": "^2.0.4",
+    "typescript": "^4.0.3"
+  }
+}
