@@ -41,19 +41,17 @@ const createLink = ({ guildId, channelId, messageId }: LinkMeta) =>
 
 const createMarkdownLink = (link: string) => `[jump](${link})`;
 
-interface EmbedMeta {
+interface Meta {
   msg: Message;
   content: string;
+  link: string;
 }
 
-const createEmbed = ({ msg, content }: EmbedMeta): MessageEmbed => {
-  const embed = new MessageEmbed();
+const containsUrl = (str: string) =>
+  ['https://', 'www.', 'http://'].some(key => str.includes(key));
 
-  const link = createLink({
-    channelId: msg.channel.id,
-    guildId: msg.guild?.id ?? client.guilds.cache.array()[0].id,
-    messageId: msg.id,
-  });
+const createEmbed = ({ msg, content, link }: Meta): { embed: MessageEmbed } => {
+  const embed = new MessageEmbed();
 
   embed.addFields([
     {
@@ -69,17 +67,24 @@ const createEmbed = ({ msg, content }: EmbedMeta): MessageEmbed => {
   embed.setTimestamp(msg.createdTimestamp);
   embed.setURL(link);
 
-  const url = msg.attachments.first()?.url;
+  const image = msg.attachments.first()?.url;
 
-  if (url) {
-    embed.setImage(url);
+  if (image) {
+    embed.setImage(image);
   }
 
-  return embed;
+  return { embed };
 };
 
+const createUrlAwareMessage = ({ msg, content, link }: Meta): string => `
+**${msg.author.username} wrote:**
+> ${content}
+
+jump: ${link}
+`;
+
 interface TargetChannel extends GuildChannel {
-  send?: (message: { embed: MessageEmbed }) => Promise<Message>;
+  send?: (message: string | { embed: MessageEmbed }) => Promise<Message>;
 }
 
 const isRelevantMessage = (content: string) =>
@@ -88,6 +93,10 @@ const isRelevantMessage = (content: string) =>
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 client.on('message', async msg => {
   try {
+    if (msg.author.id === client?.user?.id) {
+      return;
+    }
+
     const content = msg.cleanContent.replace(/\n/gimu, ' ').toLowerCase();
     const hasAttachment = msg.attachments.size > 0;
 
@@ -105,9 +114,19 @@ client.on('message', async msg => {
       return;
     }
 
-    const embed = createEmbed({ content, msg });
+    const hasUrl = containsUrl(content);
 
-    await targetChannel.send({ embed });
+    const link = createLink({
+      channelId: msg.channel.id,
+      guildId: msg.guild?.id ?? client.guilds.cache.array()[0].id,
+      messageId: msg.id,
+    });
+
+    const response = hasUrl
+      ? createUrlAwareMessage({ content, link, msg })
+      : createEmbed({ content, link, msg });
+
+    await targetChannel.send(response);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
