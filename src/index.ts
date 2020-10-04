@@ -2,7 +2,7 @@ import { Client, GuildChannel, Message, MessageEmbed } from 'discord.js';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 const TOKEN = IS_PROD ? process.env.DISCORD_TOKEN : process.env.DUMMY_TOKEN;
-// eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-non-null-assertion
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const KEYWORDS = process.env.KEYWORDS!.split(',');
 // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-non-null-assertion
 const TARGET_CHANNEL = process.env.TARGET_CHANNEL!;
@@ -87,8 +87,17 @@ interface TargetChannel extends GuildChannel {
   send?: (message: string | { embed: MessageEmbed }) => Promise<Message>;
 }
 
-const isRelevantMessage = (content: string) =>
-  KEYWORDS.some(keyword => content.includes(keyword));
+const atLeastTwoUpperCaseCharactersRegEx = /[A-Z]{2,}/gu;
+
+const isRelevantMessage = (content: string) => {
+  if (KEYWORDS.some(keyword => content.includes(keyword))) {
+    return true;
+  }
+
+  const matches = content.match(atLeastTwoUpperCaseCharactersRegEx)?.length;
+
+  return matches && matches >= 1;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 client.on('message', async msg => {
@@ -97,7 +106,7 @@ client.on('message', async msg => {
       return;
     }
 
-    const content = msg.cleanContent.replace(/\n/gimu, ' ').toLowerCase();
+    const content = msg.cleanContent.replace(/\n/gimu, ' ');
     const hasAttachment = msg.attachments.size > 0;
 
     if (!msg.guild || (!hasAttachment && !isRelevantMessage(content))) {
