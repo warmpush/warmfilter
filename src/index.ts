@@ -114,7 +114,7 @@ client.on('message', async msg => {
     }
 
     const targetChannel = msg.guild.channels.cache.find(
-      channel => channel.name === TARGET_CHANNEL
+      channel => channel.id === TARGET_CHANNEL
     ) as TargetChannel;
 
     if (!targetChannel?.send) {
