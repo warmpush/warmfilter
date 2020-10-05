@@ -2,10 +2,10 @@ import { Client, GuildChannel, Message, MessageEmbed } from 'discord.js';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 const TOKEN = IS_PROD ? process.env.DISCORD_TOKEN : process.env.DUMMY_TOKEN;
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const KEYWORDS = process.env.KEYWORDS!.split(',');
+const KEYWORDS = process.env.KEYWORDS?.split(',') ?? [];
 // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-non-null-assertion
 const TARGET_CHANNEL = process.env.TARGET_CHANNEL!;
+const DENYLIST = process.env.DENYLIST?.split(',') ?? [];
 
 const client = new Client();
 
@@ -90,6 +90,10 @@ interface TargetChannel extends GuildChannel {
 const atLeastTwoUpperCaseCharactersRegEx = /[A-Z]{2,}/gu;
 
 const isRelevantMessage = (content: string) => {
+  if (DENYLIST.some(denied => content.includes(denied))) {
+    return false;
+  }
+
   if (KEYWORDS.some(keyword => content.includes(keyword))) {
     return true;
   }
