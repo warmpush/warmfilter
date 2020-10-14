@@ -73,7 +73,7 @@ const createEmbed = ({ msg, content, link }: Meta): { embed: MessageEmbed } => {
    // embed.setImage(image);
  // }
 
- // return { embed };
+  return { embed };
 };
 
 const createUrlAwareMessage = ({ msg, content, link }: Meta): string => `
