@@ -69,11 +69,11 @@ const createEmbed = ({ msg, content, link }: Meta): { embed: MessageEmbed } => {
 
   const image = msg.attachments.first()?.url;
 
-  if (image) {
+ // if (image) {
    // embed.setImage(image);
-  }
+ // }
 
-  return { embed };
+ // return { embed };
 };
 
 const createUrlAwareMessage = ({ msg, content, link }: Meta): string => `
