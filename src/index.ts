@@ -111,7 +111,7 @@ client.on('message', async msg => {
     }
 
     const content = msg.cleanContent.replace(/\n/gimu, ' ');
-    const hasAttachment = msg.attachments.size > 0;
+    const hasAttachment = false;
 
     if (!msg.guild || (!hasAttachment && !isRelevantMessage(content))) {
       return;
