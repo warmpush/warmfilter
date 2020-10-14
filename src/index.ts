@@ -70,7 +70,7 @@ const createEmbed = ({ msg, content, link }: Meta): { embed: MessageEmbed } => {
   const image = msg.attachments.first()?.url;
 
   if (image) {
-    embed.setImage(image);
+   // embed.setImage(image);
   }
 
   return { embed };
